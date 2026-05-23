@@ -2,21 +2,16 @@ using UnityEngine;
 
 public class CustomerMovement : MonoBehaviour
 {
-    public float moveSpeed = 2f;
+    public float moveSpeed = 1f;
 
-    private Animator animator;
-
-    private int direction = 1;
+    private int direction;
 
     void Start()
     {
-        animator = GetComponent<Animator>();
+        // Rastgele yön seç
+        direction = Random.value > 0.5f ? 1 : -1;
 
-        if (Random.value > 0.5f)
-        {
-            direction = -1;
-        }
-
+        // Sprite yönünü çevir
         Vector3 scale = transform.localScale;
         scale.x = Mathf.Abs(scale.x) * direction;
         transform.localScale = scale;
@@ -24,10 +19,7 @@ public class CustomerMovement : MonoBehaviour
 
     void Update()
     {
-        transform.Translate(
-            Vector2.right * direction * moveSpeed * Time.deltaTime
-        );
-
-        animator.SetBool("isWalking", true);
+        // Hareket
+        transform.Translate(Vector2.right * direction * moveSpeed * Time.deltaTime);
     }
 }
