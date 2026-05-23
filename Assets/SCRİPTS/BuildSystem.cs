@@ -6,18 +6,23 @@ public class BuildSystem : MonoBehaviour
 {
     public GameObject selectedShopPrefab;
     public Collider2D buildArea;
+
     public LayerMask shopLayer;
     public LayerMask supportLayer;
+
     public TextMeshProUGUI moneyText;
 
     public int money = 1000;
 
     public float horizontalSnap = 0.5f;
     public float floorHeight = 3f;
+    public int supportCheckPoints = 8;
 
     private GameObject previewShop;
     private SpriteRenderer previewRenderer;
+    private BoxCollider2D previewCollider;
     private ShopData currentShopData;
+
     private bool buildMode = false;
 
     void Start()
@@ -27,7 +32,8 @@ public class BuildSystem : MonoBehaviour
 
     void Update()
     {
-        if (!buildMode || previewShop == null) return;
+        if (!buildMode || previewShop == null)
+            return;
 
         if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
         {
@@ -37,16 +43,17 @@ public class BuildSystem : MonoBehaviour
 
         previewShop.SetActive(true);
 
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        float snappedX = Mathf.Round(worldPos.x / horizontalSnap) * horizontalSnap;
-        float snappedY = Mathf.Round(worldPos.y / floorHeight) * floorHeight;
+        float snappedX = Mathf.Round(mouseWorldPos.x / horizontalSnap) * horizontalSnap;
+        float snappedY = Mathf.Round(mouseWorldPos.y / floorHeight) * floorHeight;
 
         Vector2 buildPosition = new Vector2(snappedX, snappedY);
 
         previewShop.transform.position = buildPosition;
+        Physics2D.SyncTransforms();
 
-        bool canBuild = CanBuild(buildPosition);
+        bool canBuild = CanBuild();
 
         if (money < currentShopData.price)
             canBuild = false;
@@ -65,14 +72,16 @@ public class BuildSystem : MonoBehaviour
         }
     }
 
-    bool CanBuild(Vector2 position)
+    bool CanBuild()
     {
-        if (!buildArea.OverlapPoint(position))
+        Bounds bounds = previewCollider.bounds;
+
+        if (buildArea != null && !buildArea.OverlapPoint(bounds.center))
             return false;
 
         Collider2D hit = Physics2D.OverlapBox(
-            position,
-            previewRenderer.bounds.size * 0.95f,
+            bounds.center,
+            bounds.size * 0.95f,
             0f,
             shopLayer
         );
@@ -80,30 +89,44 @@ public class BuildSystem : MonoBehaviour
         if (hit != null)
             return false;
 
-        Vector2 supportCheckPos = new Vector2(
-            position.x,
-            position.y - previewRenderer.bounds.size.y / 2f
-        );
+        float leftX = bounds.min.x;
+        float rightX = bounds.max.x;
+        float bottomY = bounds.min.y;
 
-        Collider2D support = Physics2D.OverlapBox(
-            supportCheckPos,
-            new Vector2(previewRenderer.bounds.size.x * 0.8f, 0.5f),
-            0f,
-            supportLayer
-        );
+        for (int i = 0; i < supportCheckPoints; i++)
+        {
+            float t = supportCheckPoints == 1 ? 0.5f : (float)i / (supportCheckPoints - 1);
+            float checkX = Mathf.Lerp(leftX, rightX, t);
 
-        return support != null;
+            Vector2 checkPos = new Vector2(checkX, bottomY - 0.05f);
+
+            Collider2D support = Physics2D.OverlapBox(
+                checkPos,
+                new Vector2(0.25f, 0.25f),
+                0f,
+                supportLayer
+            );
+
+            if (support == null)
+                return false;
+        }
+
+        return true;
     }
 
     void SetPreviewColor(Color color)
     {
+        if (previewRenderer == null)
+            return;
+
         color.a = 0.45f;
         previewRenderer.color = color;
     }
 
     void UpdateMoneyUI()
     {
-        moneyText.text = "Money: $" + money;
+        if (moneyText != null)
+            moneyText.text = "Money: $" + money;
     }
 
     public void SelectShop(GameObject shopPrefab)
@@ -117,10 +140,39 @@ public class BuildSystem : MonoBehaviour
         previewShop = Instantiate(shopPrefab);
         previewShop.name = "Preview Shop";
 
-        foreach (Collider2D col in previewShop.GetComponents<Collider2D>())
-            col.enabled = false;
+        SetLayerRecursively(previewShop, LayerMask.NameToLayer("Default"));
 
-        previewRenderer = previewShop.GetComponent<SpriteRenderer>();
+        previewRenderer = previewShop.GetComponentInChildren<SpriteRenderer>();
+        previewCollider = previewShop.GetComponent<BoxCollider2D>();
+
+        if (previewRenderer == null)
+        {
+            Debug.LogError("Preview Shop içinde SpriteRenderer yok. Visual child objesine SpriteRenderer ekle.");
+            return;
+        }
+
+        if (previewCollider == null)
+        {
+            Debug.LogError("Preview Shop ana objesinde BoxCollider2D yok.");
+            return;
+        }
+
+        if (currentShopData == null)
+        {
+            Debug.LogError("Shop prefabýnda ShopData yok.");
+            return;
+        }
+
         buildMode = true;
+    }
+
+    void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
     }
 }
