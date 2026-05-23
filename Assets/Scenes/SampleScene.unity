@@ -160,9 +160,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 192
   moneyText: {fileID: 740091938}
-  money: 1000
+  money: 50000
   horizontalSnap: 0.5
   floorHeight: 3
+  floorBaseY: 0
+  supportCheckPoints: 8
 --- !u!4 &137011255
 Transform:
   m_ObjectHideFlags: 0
@@ -271,7 +273,7 @@ Transform:
   m_GameObject: {fileID: 274873183}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -17.35, y: -4.38, z: -0.10758953}
+  m_LocalPosition: {x: -17.35, y: -7.12, z: -0.10758953}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -676,7 +678,7 @@ Transform:
   m_GameObject: {fileID: 599278740}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.19, y: -7.173, z: 0}
+  m_LocalPosition: {x: 0.19, y: -8.81, z: 0}
   m_LocalScale: {x: 60, y: 5.58559, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -947,7 +949,7 @@ MonoBehaviour:
         m_MethodName: SelectShop
         m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 3465752483929021517, guid: e5f211bfd4dd8aa4292d84af5b985dec, type: 3}
+          m_ObjectArgument: {fileID: 5876207527754402103, guid: 2702b98278ac3b445a57bf547eb0967c, type: 3}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -1831,7 +1833,7 @@ Transform:
   m_GameObject: {fileID: 1725255979}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16.6, y: -4.38, z: -0.10758953}
+  m_LocalPosition: {x: 16.6, y: -7.12, z: -0.10758953}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
