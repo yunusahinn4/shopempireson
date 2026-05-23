@@ -15,6 +15,8 @@ public class BuildSystem : MonoBehaviour
     public float horizontalSnap = 0.5f;
     public float floorHeight = 3f;
 
+    public int supportCheckPoints = 8;
+
     private GameObject previewShop;
     private SpriteRenderer previewRenderer;
     private ShopData currentShopData;
@@ -70,9 +72,11 @@ public class BuildSystem : MonoBehaviour
         if (!buildArea.OverlapPoint(position))
             return false;
 
+        Vector2 shopSize = previewRenderer.bounds.size;
+
         Collider2D hit = Physics2D.OverlapBox(
             position,
-            previewRenderer.bounds.size * 0.95f,
+            shopSize * 0.95f,
             0f,
             shopLayer
         );
@@ -80,19 +84,29 @@ public class BuildSystem : MonoBehaviour
         if (hit != null)
             return false;
 
-        Vector2 supportCheckPos = new Vector2(
-            position.x,
-            position.y - previewRenderer.bounds.size.y / 2f
-        );
+        float bottomY = position.y - shopSize.y / 2f;
+        float leftX = position.x - shopSize.x / 2f;
+        float rightX = position.x + shopSize.x / 2f;
 
-        Collider2D support = Physics2D.OverlapBox(
-            supportCheckPos,
-            new Vector2(previewRenderer.bounds.size.x * 0.8f, 0.5f),
-            0f,
-            supportLayer
-        );
+        for (int i = 0; i < supportCheckPoints; i++)
+        {
+            float t = supportCheckPoints == 1 ? 0.5f : (float)i / (supportCheckPoints - 1);
+            float checkX = Mathf.Lerp(leftX, rightX, t);
 
-        return support != null;
+            Vector2 checkPos = new Vector2(checkX, bottomY - 0.05f);
+
+            Collider2D support = Physics2D.OverlapBox(
+                checkPos,
+                new Vector2(0.2f, 0.2f),
+                0f,
+                supportLayer
+            );
+
+            if (support == null)
+                return false;
+        }
+
+        return true;
     }
 
     void SetPreviewColor(Color color)
