@@ -15,7 +15,7 @@ public class BuildSystem : MonoBehaviour
     public int money = 1000;
 
     public float horizontalSnap = 0.5f;
-    public float floorHeight = 3f;
+    public float floorHeight = 2.85f;
     public int supportCheckPoints = 8;
 
     private GameObject previewShop;
@@ -129,6 +129,12 @@ public class BuildSystem : MonoBehaviour
             moneyText.text = "Money: $" + money;
     }
 
+    public void AddMoney(int amount)
+    {
+        money += amount;
+        UpdateMoneyUI();
+    }
+
     public void SelectShop(GameObject shopPrefab)
     {
         selectedShopPrefab = shopPrefab;
@@ -147,7 +153,7 @@ public class BuildSystem : MonoBehaviour
 
         if (previewRenderer == null)
         {
-            Debug.LogError("Preview Shop içinde SpriteRenderer yok. Visual child objesine SpriteRenderer ekle.");
+            Debug.LogError("Preview Shop içinde SpriteRenderer yok.");
             return;
         }
 

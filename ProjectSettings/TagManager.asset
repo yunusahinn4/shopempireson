@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - BuildArea
+  - customer
   layers:
   - Default
   - TransparentFX
